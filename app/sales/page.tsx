@@ -10,8 +10,27 @@ type Product = {
   stock: number;
 };
 
+type Sale = {
+  id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  payment_type: string;
+  customer_name: string;
+  phone: string;
+  created_at: string;
+  product: {
+    name: string;
+  };
+};
+
 export default function SalesPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+
+  const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
+
   const [productId, setProductId] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState(0);
@@ -19,11 +38,31 @@ export default function SalesPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetchSales();
   }, []);
 
   async function fetchProducts() {
     const { data } = await supabase.from("products").select("*");
     if (data) setProducts(data);
+  }
+
+  async function fetchSales() {
+    const { data } = await supabase
+      .from("sales")
+      .select(`
+        id,
+        quantity,
+        unit_price,
+        total_price,
+        payment_type,
+        customer_name,
+        phone,
+        created_at,
+        product:products(name)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (data) setSales(data as any);
   }
 
   function handleProductChange(id: string) {
@@ -53,6 +92,8 @@ export default function SalesPage() {
       discount: 0,
       total_price: total,
       payment_type: payment,
+      customer_name: customerName,
+      phone: phone,
     });
 
     await supabase
@@ -63,6 +104,10 @@ export default function SalesPage() {
     alert("Sale recorded");
 
     fetchProducts();
+    fetchSales();
+
+    setCustomerName("");
+    setPhone("");
     setProductId("");
     setQuantity(1);
     setUnitPrice(0);
@@ -70,11 +115,27 @@ export default function SalesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Record Sale</h1>
+      <h1 className="text-2xl font-bold mb-6">Sales</h1>
 
-      <form onSubmit={handleSale} className="space-y-4 max-w-md">
+      {/* FORM */}
+      <form onSubmit={handleSale} className="space-y-4 max-w-md mb-8">
 
-        {/* Product */}
+        <input
+          type="text"
+          className="w-full p-2 border rounded-lg"
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+          placeholder="Customer Name"
+        />
+
+        <input
+          type="text"
+          className="w-full p-2 border rounded-lg"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Phone Number"
+        />
+
         <select
           className="w-full p-2 border rounded-lg"
           value={productId}
@@ -88,32 +149,26 @@ export default function SalesPage() {
           ))}
         </select>
 
-        {/* Quantity */}
         <input
           type="number"
           className="w-full p-2 border rounded-lg"
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
-          min="1"
           placeholder="Quantity"
         />
 
-        {/* Unit Price */}
         <input
           type="number"
           className="w-full p-2 border rounded-lg"
           value={unitPrice}
           onChange={(e) => setUnitPrice(Number(e.target.value))}
-          placeholder="Price per unit"
+          placeholder="Unit Price"
         />
 
-        {/* Total Display */}
-        <div className="bg-gray-100 p-3 rounded-lg">
-          <p className="text-gray-500">Total Amount</p>
-          <h2 className="text-xl font-bold">₦{total}</h2>
+        <div className="bg-gray-100 p-3 rounded-lg font-semibold">
+          Total: ₦{total}
         </div>
 
-        {/* Payment */}
         <select
           className="w-full p-2 border rounded-lg"
           value={payment}
@@ -129,6 +184,43 @@ export default function SalesPage() {
         </button>
 
       </form>
+
+      {/* HISTORY */}
+      <div className="bg-white rounded-xl shadow p-4">
+        <h2 className="text-lg font-bold mb-4">Sales History</h2>
+
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b">
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {sales.map(s => (
+              <tr key={s.id} className="border-b">
+                <td>{s.customer_name}</td>
+                <td>{s.phone}</td>
+                <td>{s.product?.name}</td>
+                <td>{s.quantity}</td>
+                <td>₦{s.unit_price}</td>
+                <td>₦{s.total_price}</td>
+                <td>{s.payment_type}</td>
+                <td>
+                  {new Date(s.created_at).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
