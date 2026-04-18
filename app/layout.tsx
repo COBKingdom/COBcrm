@@ -21,12 +21,29 @@ export default function RootLayout({
         </div>
 
         {/* MOBILE NAV */}
-        <div className="md:hidden flex justify-around bg-white shadow p-2 text-sm">
-          <Link href="/">Dashboard</Link>
-          <Link href="/sales">Sales</Link>
-          <Link href="/inventory">Inventory</Link>
-          <Link href="/expenses">Expenses</Link>
-        </div>
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 text-xs">
+
+  <Link href="/" className="flex flex-col items-center">
+    <span>🏠</span>
+    <span>Home</span>
+  </Link>
+
+  <Link href="/sales" className="flex flex-col items-center">
+    <span>💰</span>
+    <span>Sales</span>
+  </Link>
+
+  <Link href="/inventory" className="flex flex-col items-center">
+    <span>📦</span>
+    <span>Stock</span>
+  </Link>
+
+  <Link href="/expenses" className="flex flex-col items-center">
+    <span>💸</span>
+    <span>Expenses</span>
+  </Link>
+
+</div>
 
         <div className="flex min-h-screen">
 
