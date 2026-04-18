@@ -25,7 +25,6 @@ export default function Dashboard() {
   }, []);
 
   async function fetchData() {
-    // Products
     const { data: products } = await supabase
       .from("products")
       .select("stock");
@@ -35,7 +34,6 @@ export default function Dashboard() {
 
     setStock(totalStock);
 
-    // Sales
     const { data: salesData } = await supabase
       .from("sales")
       .select("total_price");
@@ -45,7 +43,6 @@ export default function Dashboard() {
 
     setSales(totalSales);
 
-    // Expenses
     const { data: expenseData } = await supabase
       .from("expenses")
       .select("amount");
@@ -62,19 +59,19 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
-        <div className="bg-white p-4 rounded-xl shadow">
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
           <p className="text-gray-500">Total Stock</p>
           <h2 className="text-xl font-bold">{stock}</h2>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow">
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
           <p className="text-gray-500">Total Sales</p>
-          <h2 className="text-xl font-bold">₦{sales}</h2>
+          <h2 className="text-xl font-bold">₦{sales.toLocaleString()}</h2>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow">
+        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
           <p className="text-gray-500">Expenses</p>
-          <h2 className="text-xl font-bold">₦{expenses}</h2>
+          <h2 className="text-xl font-bold">₦{expenses.toLocaleString()}</h2>
         </div>
 
       </div>
