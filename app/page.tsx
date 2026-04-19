@@ -25,6 +25,21 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
+    checkUser();
+  }, []);
+
+  async function checkUser() {
+    // 🔥 FIRST: Check login
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    // 🔥 SECOND: Check company
     const savedCompany = localStorage.getItem("company");
 
     if (!savedCompany) {
@@ -34,7 +49,7 @@ export default function Dashboard() {
 
     setCompany(savedCompany);
     fetchData();
-  }, []);
+  }
 
   async function fetchData() {
     const { data: products } = await supabase
@@ -67,22 +82,23 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">{company}</h1>
-      <p className="text-gray-500 mb-6">Dashboard</p>
+      <h1 className="text-2xl font-bold mb-2">
+        {company} Dashboard
+      </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
-        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+        <div className="bg-white p-4 rounded-xl shadow">
           <p className="text-gray-500">Total Stock</p>
           <h2 className="text-xl font-bold">{stock}</h2>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+        <div className="bg-white p-4 rounded-xl shadow">
           <p className="text-gray-500">Total Sales</p>
           <h2 className="text-xl font-bold">₦{sales.toLocaleString()}</h2>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+        <div className="bg-white p-4 rounded-xl shadow">
           <p className="text-gray-500">Expenses</p>
           <h2 className="text-xl font-bold">₦{expenses.toLocaleString()}</h2>
         </div>
