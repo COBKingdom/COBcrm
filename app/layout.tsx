@@ -1,16 +1,21 @@
+"use client";
+
 import "./globals.css";
 import Link from "next/link";
-
-export const metadata = {
-  title: "COB CRM",
-  description: "Inventory and Sales System",
-};
+import { useEffect, useState } from "react";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [company, setCompany] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("company");
+    if (saved) setCompany(saved);
+  }, []);
+
   return (
     <html lang="en">
       <body className="bg-gray-100 text-gray-900">
@@ -19,17 +24,21 @@ export default function RootLayout({
         <div className="md:hidden bg-black text-white p-4 flex items-center shadow">
           <div className="flex items-center gap-2">
             <img src="/logo.png" className="w-7 h-7" />
-            <span className="font-bold text-lg">COB CRM</span>
+            <span className="font-bold text-lg">
+              {company ? `CobSpot CRM - ${company}` : "CobSpot CRM"}
+            </span>
           </div>
         </div>
 
         <div className="flex min-h-screen">
 
-          {/* SIDEBAR (DESKTOP) */}
+          {/* SIDEBAR */}
           <aside className="w-64 bg-gray-900 text-white hidden md:flex flex-col p-6">
             <div className="flex items-center gap-2 mb-8">
               <img src="/logo.png" className="w-8 h-8" />
-              <span className="text-2xl font-bold">COB CRM</span>
+              <span className="text-xl font-bold">
+                {company ? `CobSpot CRM - ${company}` : "CobSpot CRM"}
+              </span>
             </div>
 
             <nav className="flex flex-col gap-3">
@@ -51,13 +60,13 @@ export default function RootLayout({
             </nav>
           </aside>
 
-          {/* MAIN CONTENT */}
+          {/* MAIN */}
           <main className="flex-1 p-4 md:p-6 pb-20">
             {children}
           </main>
         </div>
 
-        {/* MOBILE BOTTOM NAV */}
+        {/* MOBILE NAV */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 text-xs">
 
           <Link href="/" className="flex flex-col items-center">

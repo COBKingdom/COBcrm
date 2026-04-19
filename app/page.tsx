@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type Product = {
@@ -19,8 +20,19 @@ export default function Dashboard() {
   const [stock, setStock] = useState(0);
   const [sales, setSales] = useState(0);
   const [expenses, setExpenses] = useState(0);
+  const [company, setCompany] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
+    const savedCompany = localStorage.getItem("company");
+
+    if (!savedCompany) {
+      router.push("/start");
+      return;
+    }
+
+    setCompany(savedCompany);
     fetchData();
   }, []);
 
@@ -55,7 +67,8 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-2">{company}</h1>
+      <p className="text-gray-500 mb-6">Dashboard</p>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
