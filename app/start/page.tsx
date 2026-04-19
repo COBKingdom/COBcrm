@@ -2,18 +2,42 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function StartPage() {
   const [company, setCompany] = useState("");
   const router = useRouter();
 
-  function handleStart() {
+  async function handleStart() {
     if (!company) {
       alert("Enter company name");
       return;
     }
 
-    localStorage.setItem("company", company);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Not logged in");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("companies")
+      .insert({
+        name: company,
+        user_id: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    localStorage.setItem("company", data.id);
     router.push("/");
   }
 

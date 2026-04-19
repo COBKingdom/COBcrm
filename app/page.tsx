@@ -4,23 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type Product = {
-  stock: number;
-};
-
-type Sale = {
-  total_price: number;
-};
-
-type Expense = {
-  amount: number;
-};
-
 export default function Dashboard() {
   const [stock, setStock] = useState(0);
   const [sales, setSales] = useState(0);
   const [expenses, setExpenses] = useState(0);
-  const [company, setCompany] = useState("");
 
   const router = useRouter();
 
@@ -29,7 +16,6 @@ export default function Dashboard() {
   }, []);
 
   async function checkUser() {
-    // 🔥 FIRST: Check login
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -39,22 +25,21 @@ export default function Dashboard() {
       return;
     }
 
-    // 🔥 SECOND: Check company
-    const savedCompany = localStorage.getItem("company");
+    const companyId = localStorage.getItem("company");
 
-    if (!savedCompany) {
+    if (!companyId) {
       router.push("/start");
       return;
     }
 
-    setCompany(savedCompany);
-    fetchData();
+    fetchData(companyId);
   }
 
-  async function fetchData() {
+  async function fetchData(companyId: string) {
     const { data: products } = await supabase
       .from("products")
-      .select("stock");
+      .select("stock")
+      .eq("company_id", companyId);
 
     const totalStock =
       products?.reduce((sum, p) => sum + p.stock, 0) || 0;
@@ -63,7 +48,8 @@ export default function Dashboard() {
 
     const { data: salesData } = await supabase
       .from("sales")
-      .select("total_price");
+      .select("total_price")
+      .eq("company_id", companyId);
 
     const totalSales =
       salesData?.reduce((sum, s) => sum + s.total_price, 0) || 0;
@@ -72,7 +58,8 @@ export default function Dashboard() {
 
     const { data: expenseData } = await supabase
       .from("expenses")
-      .select("amount");
+      .select("amount")
+      .eq("company_id", companyId);
 
     const totalExpenses =
       expenseData?.reduce((sum, e) => sum + e.amount, 0) || 0;
@@ -82,9 +69,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">
-        {company} Dashboard
-      </h1>
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
